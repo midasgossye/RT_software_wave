@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 // === GLOBAL VARIABLES ===
 double ampl_val = 2.5;
 double mean_val = 2.5;
@@ -118,6 +119,35 @@ bool check_mean_amp_val(double amp_value, double mean_value) {
 
 }
 
+void generate_config_file(void) {
+    char *file_name = NULL;
+    size_t len = 0;
+    system("cls");
+    printf("\t\t** Configuration file creator **\n");
+    printf("\t\t================================\n\n");
+    printf("Config file name: ");
+    fflush(stdin);
+    getline(&file_name, &len, stdin);
+    strtok(file_name, "\n");
+    char *path_name = "config_files\\";
+    char * file_path;
+    file_path = malloc(strlen(path_name)+strlen(file_name)+1);
+    file_path[0] = '\0';
+    strcat(file_path, path_name);
+    strcat(file_path, file_name);
+
+    //printf("%s, %d", file_path, strlen(file_path));
+    FILE *fp;
+    fp = fopen(file_path, "w+");
+    fprintf(fp, "Waveform config file\nAmplitude\tMean\tFrequency\tADC\n%lf\t%lf\t%lf\t%d",ampl_val, mean_val, freq_val, out_ADC);
+    fclose(fp);
+    printf("Config file created with filename %s in folder %s\nPress enter to continue...",file_name, path_name);
+    fflush(stdin);
+    char dummy = getchar();
+
+
+}
+
 void configure_DAC(void) {
     bool running = true;
     bool compatible = true;
@@ -129,10 +159,11 @@ void configure_DAC(void) {
         printf("1)\tSet Amplitude (Set value: %.2f V)\n",ampl_val);
         printf("2)\tSet Mean Value (Set value: %.2f V)\n",mean_val);
         printf("3)\tSet Frequency (Set value: %.2f Hz)\n",freq_val);
-        printf("4)\tSelect Output DAC (Set output DAC: ADC%d)\n\n",out_ADC);
-        printf("5)\tReturn to main menu\n");
+        printf("4)\tSelect Output DAC (Set output DAC: ADC%d)\n",out_ADC);
+        printf("5)\tSave configuration in config file\n\n");
+        printf("6)\tReturn to main menu\n");
         compatible = check_mean_amp_val(ampl_val, mean_val);
-        choice = choice_checker(1,5);
+        choice = choice_checker(1,6);
 
         switch(choice) {
             case 1: ampl_val = config_amplitude();
@@ -145,7 +176,9 @@ void configure_DAC(void) {
                     printf("Select output DAC (0-1): \n");
                     out_ADC = choice_checker(0,1);
                     break;
-            case 5: if(compatible) running = false;
+            case 5: generate_config_file();
+                    break;
+            case 6: if(compatible) running = false;
                     else check_mean_amp_val(ampl_val, mean_val);
                     break;
 
