@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
+
 // === GLOBAL VARIABLES ===
 double ampl_val = 2.5;
 double mean_val = 2.5;
@@ -139,7 +141,7 @@ void generate_config_file(void) {
     //printf("%s, %d", file_path, strlen(file_path));
     FILE *fp;
     fp = fopen(file_path, "w+");
-    fprintf(fp, "Waveform config file\nAmplitude\tMean\tFrequency\tADC\n%lf\t%lf\t%lf\t%d",ampl_val, mean_val, freq_val, out_ADC);
+    fprintf(fp, "AMPL=%lf MEAN=%lf FREQ=%lf ADC=%d",ampl_val, mean_val, freq_val, out_ADC);
     fclose(fp);
     printf("Config file created with filename %s in folder %s\nPress enter to continue...",file_name, path_name);
     fflush(stdin);
@@ -159,7 +161,7 @@ void configure_DAC(void) {
         printf("1)\tSet Amplitude (Set value: %.2f V)\n",ampl_val);
         printf("2)\tSet Mean Value (Set value: %.2f V)\n",mean_val);
         printf("3)\tSet Frequency (Set value: %.2f Hz)\n",freq_val);
-        printf("4)\tSelect Output DAC (Set output DAC: ADC%d)\n",out_ADC);
+        printf("4)\tSelect Output DAC (Set output DAC: DAC%d)\n",out_ADC);
         printf("5)\tSave configuration in config file\n\n");
         printf("6)\tReturn to main menu\n");
         compatible = check_mean_amp_val(ampl_val, mean_val);
@@ -202,7 +204,46 @@ void gen_triangle(void) {
 }
 
 void load_config(void) {
-    printf("Load config file");
+    system("cls");
+    printf("\t\t** Configuration file loader **\n");
+    printf("\t\t===============================\n\n");
+    printf("Saved config files:\n");
+    system("dir config_files /b /a-d");
+    fflush(stdin);
+    printf("\nType filename of desired config file: ");
+    char *file_name = NULL;
+    size_t len = 0;
+    getline(&file_name, &len, stdin);
+    strtok(file_name, "\n");
+    char *path_name = "config_files\\";
+    char * file_path;
+    file_path = malloc(strlen(path_name)+strlen(file_name)+1);
+    file_path[0] = '\0';
+    strcat(file_path, path_name);
+    strcat(file_path, file_name);
+    //printf("%s",file_path);
+
+
+    FILE *fp;
+    char str[60];
+
+   /* opening file for reading */
+   fp = fopen(file_path , "r");
+   if(fp == NULL) {
+      perror("Error opening file");
+   }
+    fscanf(fp,"AMPL=%lf MEAN=%lf FREQ=%lf ADC=%d",&ampl_val, &mean_val, &freq_val, &out_ADC);
+    fclose(fp);
+
+    printf("\nConfiguration file loaded:\n\n");
+    printf("Amplitude: \t%lf V\n",ampl_val);
+    printf("Mean value: \t%lf V\n", mean_val);
+    printf("Frequency: \t%lf Hz\n", freq_val);
+    printf("Output DAC: \tDAC%d\n", out_ADC);
+    printf("Press enter to continue...");
+    fflush(stdin);
+    char dummy = getchar();
+
 
 }
 
