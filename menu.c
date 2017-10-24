@@ -11,7 +11,13 @@ double freq_val = 10.0;
 char out_ADC = 0;
 
 
-
+void remove_space(char *d, const char *s){
+    for(;*s;++s){
+        if(*s != ' ')
+            *d++ = *s;
+    }
+    *d = *s;
+}
 
 char choice_checker(char lower_bound, char upper_bound) {
     bool valid_in = true;
@@ -122,14 +128,15 @@ bool check_mean_amp_val(double amp_value, double mean_value) {
 }
 
 void generate_config_file(void) {
-    char *file_name = NULL;
-    size_t len = 0;
     system("cls");
     printf("\t\t** Configuration file creator **\n");
     printf("\t\t================================\n\n");
     printf("Config file name: ");
+    char file_name_buff[60];
     fflush(stdin);
-    getline(&file_name, &len, stdin);
+    fgets (file_name_buff, 60, stdin);
+    char file_name[sizeof(file_name_buff)];
+    remove_space(file_name, file_name_buff);
     strtok(file_name, "\n");
     char *path_name = "config_files\\";
     char * file_path;
@@ -211,9 +218,11 @@ void load_config(void) {
     system("dir config_files /b /a-d");
     fflush(stdin);
     printf("\nType filename of desired config file: ");
-    char *file_name = NULL;
-    size_t len = 0;
-    getline(&file_name, &len, stdin);
+    char file_name_buff[60];
+    fflush(stdin);
+    fgets (file_name_buff, 60, stdin);
+    char file_name[sizeof(file_name_buff)];
+    remove_space(file_name, file_name_buff);
     strtok(file_name, "\n");
     char *path_name = "config_files\\";
     char * file_path;
