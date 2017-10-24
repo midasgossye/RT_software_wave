@@ -15,7 +15,7 @@
 double ampl_val = 2.5;
 double mean_val = 2.5;
 double freq_val = 10.0;
-char out_ADC = 0;
+int out_ADC = 0;
 //"cls" for win/DOS
 //"clear" for Unix
 //char *CLEARSTR = "cls";
@@ -30,9 +30,9 @@ void remove_space(char *d, const char *s){
     *d = *s;
 }
 
-char choice_checker(char lower_bound, char upper_bound) {
+int choice_checker(int lower_bound, int upper_bound) {
     bool valid_in = true;
-    char choice = 0;
+    int choice = 0;
     do {
         printf("\nChoice: ");
         fflush(stdin);
@@ -171,7 +171,7 @@ void generate_config_file(void) {
 void configure_DAC(void) {
     bool running = true;
     bool compatible = true;
-    char choice = 0;
+    int choice = 0;
     while(running) {
         system(CLEARSTR);
         printf("\t\t** DAC Configuration Menu **\n");
@@ -272,7 +272,7 @@ void load_config(void) {
 int main() {
     bool running = true;
     while(running) {
-        char choice = main_menu();
+        int choice = main_menu();
         switch(choice) {
             case 1: configure_DAC();
                     break;
@@ -285,9 +285,6 @@ int main() {
             case 5: load_config();
                     break;
             case 6: running = false;
-
-
-
         }
     }
     return 0;
