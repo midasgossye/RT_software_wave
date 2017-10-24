@@ -36,6 +36,7 @@ int choice_checker(int lower_bound, int upper_bound) {
     do {
         printf("\nChoice: ");
         fflush(stdin);
+        sleep(1);
         choice = getchar()-'0';
         if(choice < lower_bound || choice > upper_bound) {
             printf("Invalid choice!\n");
