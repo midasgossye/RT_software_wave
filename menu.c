@@ -8,7 +8,7 @@
 #define DIRLIST "dir config_files /b /a-d"
 #else
 #define CLEARSTR "clear"
-#define DIRLIST "ls config_files -1"
+#define DIRLIST "ls -1"
 #endif // _WIN32
 
 // === GLOBAL VARIABLES ===
