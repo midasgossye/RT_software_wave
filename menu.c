@@ -3,12 +3,23 @@
 #include <stdbool.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define CLEARSTR "cls"
+#define DIRLIST "dir config_files /b /a-d"
+#else
+#define CLEARSTR "clear"
+#define DIRLIST "ls -1"
+#endif // _WIN32
 
 // === GLOBAL VARIABLES ===
 double ampl_val = 2.5;
 double mean_val = 2.5;
 double freq_val = 10.0;
 char out_ADC = 0;
+//"cls" for win/DOS
+//"clear" for Unix
+//char *CLEARSTR = "cls";
+
 
 
 void remove_space(char *d, const char *s){
@@ -37,7 +48,7 @@ char choice_checker(char lower_bound, char upper_bound) {
 
 }
 char main_menu(void) {
-    system("cls");
+    system(CLEARSTR);
 
     printf("\t\t** Waveform generator V1.0 **\n");
     printf("\t\t=============================\n\n");
@@ -52,7 +63,7 @@ char main_menu(void) {
 }
 
 double config_amplitude(void) {
-    system("cls");
+    system(CLEARSTR);
     double ampl_value;
     bool valid_in = true;
     do {
@@ -72,7 +83,7 @@ double config_amplitude(void) {
 }
 
 double config_mean(void) {
-    system("cls");
+    system(CLEARSTR);
     double mean_value;
     bool valid_in = true;
     do {
@@ -92,7 +103,7 @@ double config_mean(void) {
 }
 
 double config_freq(void) {
-    system("cls");
+    system(CLEARSTR);
     double freq_value;
     bool valid_in = true;
     do {
@@ -128,7 +139,7 @@ bool check_mean_amp_val(double amp_value, double mean_value) {
 }
 
 void generate_config_file(void) {
-    system("cls");
+    system(CLEARSTR);
     printf("\t\t** Configuration file creator **\n");
     printf("\t\t================================\n\n");
     printf("Config file name: ");
@@ -162,7 +173,7 @@ void configure_DAC(void) {
     bool compatible = true;
     char choice = 0;
     while(running) {
-        system("cls");
+        system(CLEARSTR);
         printf("\t\t** DAC Configuration Menu **\n");
         printf("\t\t============================\n\n");
         printf("1)\tSet Amplitude (Set value: %.2f V)\n",ampl_val);
@@ -181,7 +192,7 @@ void configure_DAC(void) {
                     break;
             case 3: freq_val = config_freq();
                     break;
-            case 4: system("cls");
+            case 4: system(CLEARSTR);
                     printf("Select output DAC (0-1): \n");
                     out_ADC = choice_checker(0,1);
                     break;
@@ -211,11 +222,13 @@ void gen_triangle(void) {
 }
 
 void load_config(void) {
-    system("cls");
+    system(CLEARSTR);
     printf("\t\t** Configuration file loader **\n");
     printf("\t\t===============================\n\n");
     printf("Saved config files:\n");
-    system("dir config_files /b /a-d");
+    //"dir config_files /b /a-d" for WIN/DOS
+    //"ls -1" for UNIX
+    system(DIRLIST);
     fflush(stdin);
     printf("\nType filename of desired config file: ");
     char file_name_buff[60];
