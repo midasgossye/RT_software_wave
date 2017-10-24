@@ -8,7 +8,7 @@
 #define DIRLIST "dir config_files /b /a-d"
 #else
 #define CLEARSTR "clear"
-#define DIRLIST "ls -1"
+#define DIRLIST "ls config_files -1"
 #endif // _WIN32
 
 // === GLOBAL VARIABLES ===
@@ -36,7 +36,6 @@ int choice_checker(int lower_bound, int upper_bound) {
     do {
         printf("\nChoice: ");
         fflush(stdin);
-        sleep(1);
         choice = getchar()-'0';
         if(choice < lower_bound || choice > upper_bound) {
             printf("Invalid choice!\n");
