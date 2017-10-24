@@ -120,7 +120,7 @@ bool check_mean_amp_val(double amp_value, double mean_value) {
     return compatible;
 
 }
-
+/*
 void generate_config_file(void) {
     char *file_name = NULL;
     size_t len = 0;
@@ -149,7 +149,7 @@ void generate_config_file(void) {
 
 
 }
-
+*/
 void configure_DAC(void) {
     bool running = true;
     bool compatible = true;
@@ -178,8 +178,8 @@ void configure_DAC(void) {
                     printf("Select output DAC (0-1): \n");
                     out_ADC = choice_checker(0,1);
                     break;
-            case 5: generate_config_file();
-                    break;
+            //case 5: generate_config_file();
+                    //break;
             case 6: if(compatible) running = false;
                     else check_mean_amp_val(ampl_val, mean_val);
                     break;
@@ -202,7 +202,7 @@ void gen_triangle(void) {
     printf("Triangle");
 
 }
-
+/*
 void load_config(void) {
     system("cls");
     printf("\t\t** Configuration file loader **\n");
@@ -227,7 +227,6 @@ void load_config(void) {
     FILE *fp;
     char str[60];
 
-   /* opening file for reading */
    fp = fopen(file_path , "r");
    if(fp == NULL) {
       perror("Error opening file");
@@ -246,7 +245,7 @@ void load_config(void) {
 
 
 }
-
+*/
 int main() {
     bool running = true;
     while(running) {
@@ -260,8 +259,8 @@ int main() {
                     break;
             case 4: gen_triangle();
                     break;
-            case 5: load_config();
-                    break;
+            //case 5: load_config();
+                    //break;
             case 6: running = false;
 
 
