@@ -21,6 +21,7 @@
 #include <sys/neutrino.h>
 #include <sys/mman.h>
 #include <math.h>
+#include <time.h>
 																
 #define	INTERRUPT		iobase[1] + 0				// Badr1 + 0 : also ADC register
 #define	MUXCHAN			iobase[1] + 2				// Badr1 + 2
@@ -48,18 +49,27 @@
 #define	DA_FIFOCLR		iobase[4] + 2				// Badr4 + 2
 	
 int badr[5];															// PCI 2.2 assigns 6 IO base addresses
-
+float frequency_gen = 1.0	;
+int sleep_for;
+float amplitude_value = 2.5;
+float mean_value = 2.5;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	
+
 int main() {
+int resolution = 50;
+int msec;
+clock_t start, diff;
 struct pci_dev_info info;
 void *hdl;
 
 uintptr_t iobase[6];
 uintptr_t dio_in;
 uint16_t adc_in;
-	
-unsigned int i,count;
+
+
+int i;
+int j;
+unsigned int count;
 unsigned short chan;
 
 unsigned int data[100];
@@ -106,21 +116,36 @@ if(ThreadCtl(_NTO_TCTL_IO,0)==-1) {
 	
 printf("\n\nWrite Sine Demo to multiple DAC\n");																						
 
-delta=(2.0*3.142)/50.0;					// increment
-for(i=0;i<50;i++) {
-  dummy= ((sinf((float)(i*delta))) + 1.0) * 0x8000 ; // 0x8000 is a scaling value to scale a 0-2 V signal between 0x0000 and 0xFFFF
+delta=(2.0*3.142)/(float)resolution;					// increment
+for(i=0;i<resolution;i++) {
+  if(i<(resolution/2)) {
+  //dummy = ((i/((float)resolution/2.0))) * 0x7FFF * amplitude_value/2.5  + mean_value - amplitude_value/2.0;
+  //dummy = 0;
+  }
+  else {
+  //dummy = (((-1.0*i+resolution/2)/((float)resolution/2.0))+1.0) * 0x7FFF * amplitude_value/2.5 + mean_value - amplitude_value/2.0;
+  //dummy = 0x7FFF;
+  }
+  dummy= ((sinf((float)(i*delta))) + 1.0) * 0x7FFF ; // 0x8000 is a scaling value to scale a 0-2 V signal between 0x0000 and 0xFFFF
   data[i]= (unsigned) dummy;			// add offset +  scale
- }
 
+ }
+sleep_for = ((1.0/frequency_gen)/(float)resolution)*1000.0;
 while(1) {
-for(i=0;i<50;i++) {
+for(i=0;i<resolution;i++) {
+	start = clock();
 	out16(DA_CTLREG,0x0a23);			// DA Enable, #0, #1, SW 5V unipolar		2/6
    	out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
    	out16(DA_Data,(short) data[i]);																																		
    	out16(DA_CTLREG,0x0a43);			// DA Enable, #1, #1, SW 5V unipolar		2/6
   	out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
-	out16(DA_Data,(short) data[i]);																																		
+	out16(DA_Data,(short) data[i]);
+	do {
+		diff = clock() - start;
+		msec = diff * 1000 / CLOCKS_PER_SEC;
+	} while(msec < (sleep_for));																										
   	}
+  	  
 }
   														// Unreachable code
   														// Reset DAC to 5v
