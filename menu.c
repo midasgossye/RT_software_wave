@@ -3,24 +3,36 @@
 #include <stdbool.h>
 #include <string.h>
 
+
+#define FREQ_LOWER_BOUND 0.1
+#define FREQ_UPPER_BOUND 10
+#define AMPL_LOWER_BOUND 0
+#define AMPL_UPPER_BOUND 5
+#define MEAN_LOWER_BOUND 0
+#define MEAN_UPPER_BOUND 5
+
 #ifdef _WIN32
 #define CLEARSTR "cls"
 #define DIRLIST "dir config_files /b /a-d"
 #else
 #define CLEARSTR "clear"
-#define DIRLIST "ls config_files -1"
-#endif // _WIN32
+#define DIRLIST "ls -1 config_files"
+#endif
 
 // === GLOBAL VARIABLES ===
-double ampl_val = 2.5;
-double mean_val = 2.5;
-double freq_val = 10.0;
-int out_ADC = 0;
+static double ampl_val = 2.5;
+static double mean_val = 2.5;
+static double freq_val = 10.0;
+static int out_ADC = 0;
 //"cls" for win/DOS
 //"clear" for Unix
 //char *CLEARSTR = "cls";
 
 
+void flush_stdin(void) {
+	int c;
+	while((c = getchar()) != '\n' && c != EOF);
+}
 
 void remove_space(char *d, const char *s){
     for(;*s;++s){
@@ -32,18 +44,22 @@ void remove_space(char *d, const char *s){
 
 int choice_checker(int lower_bound, int upper_bound) {
     bool valid_in = true;
-    int choice = 0;
+    int choice;
+    //flush_stdin();
     do {
         printf("\nChoice: ");
-        fflush(stdin);
-        choice = getchar()-'0';
+        fflush(stdout);
+       	choice = getchar();
+        choice = choice - '0';
         if(choice < lower_bound || choice > upper_bound) {
             printf("Invalid choice!\n");
             valid_in = false;
         }
         else valid_in = true;
+
     } while(!valid_in);
     //printf("%d",choice);
+    flush_stdin();
     return choice;
 
 }
@@ -56,23 +72,58 @@ char main_menu(void) {
     printf("2)\tGenerate Square Wave\n");
     printf("3)\tGenerate Sine Wave\n");
     printf("4)\tGenerate Triangle Wave\n");
-    printf("5)\tLoad config file\n\n");
-    printf("6)\tQuit\n");
-    return choice_checker(1,6);
+    printf("5)\tLoad config file\n");
+    printf("6)\tHelp\n\n");
+    printf("7)\tQuit\n");
+    return choice_checker(1,7);
+
+}
+
+void load_help_menu(void) {
+	char dummy;
+	system(CLEARSTR);
+	
+	printf("\t\t** HELP MENU **\n");
+	printf("\t\t===============\n\n");
+	printf("\tPROGRAM DESCRIPTION\n");
+	printf("This program uses the PCI-DAS1602/16 ADC/DAC Card to generate sine, square and triangle signals.\n");
+	printf("This program also serves as the second Continuous Assesment for the NTU R/T software course \nto prove the authors proficiency in the C programming lamguage and QNX OS.\n\n");
+	
+	printf("\tBASIC PROGRAM USAGE\n");
+	printf("The user can setup the DAC paramters by setting them in the DAC configuration menu.\n");
+	printf("Care must be taken to make sure the signal will not exceed the 0-5 V boundary, otherwise the signal\nwill clip to the supply rail(s).\n");
+	printf("Apart from setting the signals amplitude, mean value and frequency, the user can also select which \nDAC channel he would like to use.\n\n");
+	
+	printf("\tSAVING AND LOADING CONFIG FILES\n");
+	printf("If the user has set his desired DAC configuration parameters, he can choose to save this configuration\nto a config file. This is very helpful if the user needs the same paramters at another time.\n");
+	printf("You can save the current configuration by choosing the 'save configuration in config file' option in the \nDAC configuration menu. To save a file, type in a file name followed by the .txt extension (e.g. config1.txt)\n");
+	printf("To load a previously saved config file, select the 'Load config file' option in the main menu. A list of all\nthe available config files will be shown. To choose a config file, \ntype in the name of the file as shown in the listing (including the file extension).\n");
+	printf("When the file is loaded in succesfully, all of the loaded parameters will be shown. If an error occured, \ntry again and double check if you spelled the desired file correctly and included the file extension.\n\n");
+	printf("Press enter to go back to the main menu...");
+	fflush(stdout);
+	dummy = getchar();	
 
 }
 
 double config_amplitude(void) {
-    system(CLEARSTR);
-    double ampl_value;
-    bool valid_in = true;
+   double ampl_value;
+   bool valid_in = true;
+   float lower_bound = AMPL_LOWER_BOUND;
+   float upper_bound = AMPL_UPPER_BOUND;
+   
+   system(CLEARSTR);
+   
+    
+    
     do {
-        printf("Amplitude value (0-5 V): ");
-        fflush(stdin);
+        printf("Amplitude value (%.1f-%.1f V): ",lower_bound, upper_bound );
+        fflush(stdout);
+        ampl_value = 0;
         if(scanf("%lf", &ampl_value)!=1) {
            printf("\nInvalid Input!\n");
         }
-        if(ampl_value <= 0 || ampl_value > 5) {
+        getchar();
+        if(ampl_value <= AMPL_LOWER_BOUND || ampl_value > AMPL_UPPER_BOUND) {
             printf("\nValue out of range!\n");
             valid_in = false;
         }
@@ -83,16 +134,20 @@ double config_amplitude(void) {
 }
 
 double config_mean(void) {
-    system(CLEARSTR);
     double mean_value;
     bool valid_in = true;
+    float lower_bound = MEAN_LOWER_BOUND;
+    float upper_bound = MEAN_UPPER_BOUND;
+    system(CLEARSTR);
+
     do {
-        printf("Mean Value (0-5 V): ");
-        fflush(stdin);
+        printf("Mean Value (%.0f-%.0f V): ", lower_bound, upper_bound);
+        fflush(stdout);
         if(scanf("%lf", &mean_value)!=1) {
            printf("\nInvalid Input!\n");
         }
-        if(mean_value <= 0 || mean_value > 5) {
+        getchar();
+        if(mean_value <= MEAN_LOWER_BOUND || mean_value > MEAN_UPPER_BOUND) {
             printf("\nValue out of range!\n");
             valid_in = false;
         }
@@ -103,16 +158,20 @@ double config_mean(void) {
 }
 
 double config_freq(void) {
-    system(CLEARSTR);
     double freq_value;
     bool valid_in = true;
+    float lower_bound = FREQ_LOWER_BOUND;
+    float upper_bound = FREQ_UPPER_BOUND;
+    system(CLEARSTR);
+
     do {
-        printf("Frequency (0.1- 10 Hz): ");
-        fflush(stdin);
+        printf("Frequency (%.1f-%.1f Hz): ", lower_bound, upper_bound);
+        fflush(stdout);
         if(scanf("%lf", &freq_value)!=1) {
            printf("\nInvalid Input!\n");
         }
-        if(freq_value < 0.1 || freq_value > 10) {
+        getchar();
+        if(freq_value < FREQ_LOWER_BOUND || freq_value > FREQ_UPPER_BOUND) {
             printf("\nValue out of range!\n");
             valid_in = false;
         }
@@ -139,31 +198,38 @@ bool check_mean_amp_val(double amp_value, double mean_value) {
 }
 
 void generate_config_file(void) {
+    char file_name_buff[60];
+    char *path_name = "config_files/";
+    char * file_path;
+    FILE *fp;
+    char dummy;
+    char *file_name;
+    
+    
     system(CLEARSTR);
     printf("\t\t** Configuration file creator **\n");
     printf("\t\t================================\n\n");
     printf("Config file name: ");
-    char file_name_buff[60];
-    fflush(stdin);
+    fflush(stdout);
+    
     fgets (file_name_buff, 60, stdin);
-    char file_name[sizeof(file_name_buff)];
+    file_name = malloc(strlen(file_name_buff));
     remove_space(file_name, file_name_buff);
     strtok(file_name, "\n");
-    char *path_name = "config_files\\";
-    char * file_path;
+   
     file_path = malloc(strlen(path_name)+strlen(file_name)+1);
     file_path[0] = '\0';
     strcat(file_path, path_name);
     strcat(file_path, file_name);
 
     //printf("%s, %d", file_path, strlen(file_path));
-    FILE *fp;
+   
     fp = fopen(file_path, "w+");
     fprintf(fp, "AMPL=%lf MEAN=%lf FREQ=%lf ADC=%d",ampl_val, mean_val, freq_val, out_ADC);
     fclose(fp);
     printf("Config file created with filename %s in folder %s\nPress enter to continue...",file_name, path_name);
-    fflush(stdin);
-    char dummy = getchar();
+    fflush(stdout);
+    dummy = getchar();
 
 
 }
@@ -222,6 +288,14 @@ void gen_triangle(void) {
 }
 
 void load_config(void) {
+    char file_name_buff[60];
+    char *file_name;
+    char *path_name = "config_files/";
+    char * file_path;
+    FILE *fp;
+    char str[60];
+    char dummy;
+    
     system(CLEARSTR);
     printf("\t\t** Configuration file loader **\n");
     printf("\t\t===============================\n\n");
@@ -229,48 +303,113 @@ void load_config(void) {
     //"dir config_files /b /a-d" for WIN/DOS
     //"ls -1" for UNIX
     system(DIRLIST);
-    fflush(stdin);
     printf("\nType filename of desired config file: ");
-    char file_name_buff[60];
-    fflush(stdin);
+    fflush(stdout);
     fgets (file_name_buff, 60, stdin);
-    char file_name[sizeof(file_name_buff)];
+    file_name = malloc(strlen(file_name_buff));
     remove_space(file_name, file_name_buff);
     strtok(file_name, "\n");
-    char *path_name = "config_files\\";
-    char * file_path;
+
     file_path = malloc(strlen(path_name)+strlen(file_name)+1);
     file_path[0] = '\0';
     strcat(file_path, path_name);
     strcat(file_path, file_name);
-    //printf("%s",file_path);
+    printf("Selected file: %s\n",file_path);
 
 
-    FILE *fp;
-    char str[60];
 
    /* opening file for reading */
    fp = fopen(file_path , "r");
    if(fp == NULL) {
       perror("Error opening file");
+      printf("File not found, press enter to continue...\n");
+      dummy = getchar();
    }
+   else {
     fscanf(fp,"AMPL=%lf MEAN=%lf FREQ=%lf ADC=%d",&ampl_val, &mean_val, &freq_val, &out_ADC);
     fclose(fp);
 
-    printf("\nConfiguration file loaded:\n\n");
+    printf("\nConfiguration file loaded successfully:\n\n");
     printf("Amplitude: \t%lf V\n",ampl_val);
     printf("Mean value: \t%lf V\n", mean_val);
     printf("Frequency: \t%lf Hz\n", freq_val);
     printf("Output DAC: \tDAC%d\n", out_ADC);
     printf("Press enter to continue...");
-    fflush(stdin);
-    char dummy = getchar();
+	fflush(stdout);
+    dummy = getchar();
+	}
 
 
 }
 
-int main() {
-    bool running = true;
+void load_values_from_arguments(int argc, char **argv) {
+	int i;
+	char dummy;
+	system(CLEARSTR);
+
+		for(i=1; i < argc; i+=2) {
+			if(strcmp(argv[i],"-a") == 0) {
+				if(sscanf(argv[i+1], "%lf", &ampl_val) != 1) printf("Invalid amplitude value!\n") ;
+				else {
+					if(ampl_val > AMPL_UPPER_BOUND || ampl_val < AMPL_LOWER_BOUND) {
+						printf("Amplitude value out of range! Default value loaded...\n");
+						ampl_val = 2.5;
+						}
+				}
+			}
+			else if(strcmp(argv[i],"-m") == 0) {
+				if(sscanf(argv[i+1], "%lf", &mean_val) != 1)  printf("Invalid mean value!\n");
+				else {
+					if(mean_val > MEAN_UPPER_BOUND || mean_val < MEAN_LOWER_BOUND) {
+						printf("Mean value out of range! Default value loaded...\n");
+						mean_val = 2.5;
+					}
+				}
+			}
+			else if(strcmp(argv[i],"-f") == 0) {
+				if(sscanf(argv[i+1], "%lf", &freq_val) != 1) printf("Invalid frequency value!\n");
+				else {
+					if(freq_val > FREQ_UPPER_BOUND || freq_val < FREQ_LOWER_BOUND) {
+						printf("Frequency value out of range! Default value loaded...\n");
+						freq_val = 10.0;
+					}
+				}
+			}
+			else if(strcmp(argv[i],"-DAC") == 0) {
+				if(sscanf(argv[i+1], "%d", &out_ADC) != 1) printf("Invalid DAC selection!\n") ;
+				else {
+					if(out_ADC < 0 || out_ADC > 1) {
+						printf("Invalid DAC selection! Default value loaded...\n");
+						out_ADC = 0;
+					}
+				}
+			}
+			else {
+				printf("Invalid argument(s) given!\n");
+				
+			}
+		}
+	if(!check_mean_amp_val(ampl_val, mean_val)) {
+		printf("Default values loaded for amplitude and mean value...\n");
+		ampl_val = 2.5;
+		mean_val = 2.5;
+	}
+	printf("\nValues loaded:\n\n");
+    printf("Amplitude: \t%lf V\n",ampl_val);
+    printf("Mean value: \t%lf V\n", mean_val);
+    printf("Frequency: \t%lf Hz\n", freq_val);
+    printf("Output DAC: \tDAC%d\n", out_ADC);
+    printf("Press enter to continue...");
+	fflush(stdout);
+    dummy = getchar();
+	
+
+}
+int main(int argc, char **argv) {
+	bool running = true;
+	if(argc > 1) {
+		load_values_from_arguments(argc, argv);
+	}
     while(running) {
         int choice = main_menu();
         switch(choice) {
@@ -284,7 +423,9 @@ int main() {
                     break;
             case 5: load_config();
                     break;
-            case 6: running = false;
+            case 6: load_help_menu();
+            		break;
+            case 7: running = false;
         }
     }
     return 0;
