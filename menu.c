@@ -95,17 +95,8 @@ int choice_checker(int lower_bound, int upper_bound){
 }
 
 char main_menu(void){
-    //pass the ASCII art file as a pointer to print program
-    char *filename = "welcome.txt";
-    FILE *fptr = NULL;
-    if((fptr = fopen(filename, "r")) == NULL) {
-    	fprintf(stderr, "error opening file %s\n", filename);
-    }
-    //clear screen for new input
-    system(CLEARSTR);
-    print_image(fptr);          //show welcome message
-    fflush(stdout);
-    sleep(5);                   //wait 5 sec	system(CLEARSTR);
+
+    //Clear the console to prepare for printing the main menu	system(CLEARSTR);
 	//print the main menu
     printf("\t\t** Waveform generator V4.3 **\n");
     printf("\t\t=============================\n\n");
@@ -124,7 +115,27 @@ char main_menu(void){
 //this is the HELP menu, just some plain text explaining the various functions.
 void load_help_menu(void){
     char dummy;
+	char *filename = "welcome.txt"; // Filename of .txt file containing ASCII art
+    FILE *fptr = NULL;
 
+    //Try to open file
+    if((fptr = fopen(filename, "r")) == NULL) {
+    	fprintf(stderr, "error opening file %s\n", filename);
+
+    }
+    system(CLEARSTR);
+    //prompt user to run help menu in full screen mode to make everything readable
+    printf("PLEASE RUN HELP MENU IN FULL SCREEN WINDOW FOR THE BEST EXPERIENCE\n");
+    printf("Press ENTER to continue...");
+    fflush(stdout);
+    dummy = getchar();
+    //Clear screen and display ASCII Art
+    system(CLEARSTR);
+    print_image(fptr);
+    fflush(stdout);
+    //Wait for 3 s
+    sleep(3);
+    //Clear screen and print actual help text
 	system(CLEARSTR);
 
 	printf("\t\t** HELP MENU **\n");
