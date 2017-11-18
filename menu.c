@@ -121,7 +121,7 @@ char main_menu(void){
     return choice_checker(1,8);
 }
 
-//this is the HELP menu, just some plane text explaining the various functions.
+//this is the HELP menu, just some plain text explaining the various functions.
 void load_help_menu(void){
     char dummy;
 
