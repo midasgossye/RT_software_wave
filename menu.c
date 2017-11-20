@@ -49,7 +49,8 @@ void INThandler(int);               //interrupt handler to capture Ctrl+c
 
 // ============= PROGRAM FUNCTIONS ================
 
-//function to simply clear stdinvoid flush_stdin(void){
+//function to simply clear stdin
+void flush_stdin(void){
 	int c;
 	fseek(stdin,0,SEEK_END);
 }
@@ -96,7 +97,8 @@ int choice_checker(int lower_bound, int upper_bound){
 
 char main_menu(void){
 
-    //Clear the console to prepare for printing the main menu	system(CLEARSTR);
+    //Clear the console to prepare for printing the main menu	
+    system(CLEARSTR);
 	//print the main menu
     printf("\t\t** Waveform generator V4.3 **\n");
     printf("\t\t=============================\n\n");
@@ -467,6 +469,10 @@ void gen_square(void){
 	int *wave_ptr;
 	float delta, dummy;
 	wave_ptr = &wave;
+	//Check if a switch is switched on before generating the wave
+	if(read_switches() != 0xf0) printf("Please set all switches to the OFF position!\n");
+	while(read_switches() != 0xf0) delay(100);
+	
 	//start threads for keyboard input and board input
 	pthread_create(&tid, NULL, pot_DAC_config, &wave);
 	pthread_create(&tid2, NULL, keyboard_check, NULL);
@@ -488,12 +494,13 @@ void gen_square(void){
 
         data[i]= (unsigned) dummy;
     }
-    //write to data stream    do{
+    //write to data stream    
+    do{
         for(i = 0; i<resolution; i++){
             write_DAC(data[i], out_ADC);
         }
 
-    }while(((read_switches() & 0x01) == 0) && (quit_wave_gen == false));
+    } while(((read_switches() & 0x01) == 0) && (quit_wave_gen == false));
 
     //kill threads
     pthread_cancel(tid);
@@ -509,6 +516,9 @@ void gen_sine(void){
 	int *wave_ptr;
 	float delta,dummy;
 	wave_ptr = &wave;
+	//Check if a switch is switched on before generating the wave
+	if(read_switches() != 0xf0) printf("Please set all switches to the OFF position!\n");
+	while(read_switches() != 0xf0) delay(100);
 	pthread_create(&tid, NULL, pot_DAC_config, &wave);
 	pthread_create(&tid2, NULL, keyboard_check, NULL);
 	system(CLEARSTR);
@@ -543,6 +553,9 @@ void gen_triangle(void){
 	int *wave_ptr;
 	float delta,dummy;
 	wave_ptr = &wave;
+	//Check if a switch is switched on before generating the wave
+	if(read_switches() != 0xf0) printf("Please set all switches to the OFF position!\n");
+	while(read_switches() != 0xf0) delay(100);
 	pthread_create(&tid, NULL, pot_DAC_config, &wave);
 	pthread_create(&tid2, NULL, keyboard_check, NULL);
 	resolution = (174000/(freq_val));
